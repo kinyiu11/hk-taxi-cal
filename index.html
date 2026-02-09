@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>London TfL 到站時間</title>
-    <meta name="theme-color" content="#0b1a2b" />
+    <title>HK Taxi 車費計算器</title>
+    <meta name="theme-color" content="#0b2b3c" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="manifest" href="manifest.json" />
@@ -12,95 +12,236 @@
   </head>
   <body>
     <main class="app">
-      <div class="topbar">
-        <button type="button" class="ghost-btn" id="lang-toggle">English</button>
-      </div>
       <header class="hero">
         <div class="hero-text">
-          <p class="eyebrow" data-i18n="eyebrow">London TfL</p>
-          <h1 data-i18n="title">到站時間查詢</h1>
-          <p class="subtitle" data-i18n="subtitle">輸入站名，快速查看下一班車到站時間。</p>
+          <p class="eyebrow">香港的士計算器</p>
+          <h1>HK Taxi 車費計算器</h1>
+          <p class="subtitle">輸入距離、選擇的士類別、行李與隧道，立即拆分每人車資。</p>
         </div>
         <div class="hero-card">
-          <p class="hero-label" data-i18n="heroLabel">已選站點</p>
-          <p class="hero-value" id="hero-stop">未選擇</p>
-          <p class="hero-note" data-i18n="heroNote">只限倫敦 TfL</p>
+          <p class="hero-label">今日計算</p>
+          <p class="hero-value" id="hero-total">$0</p>
+          <p class="hero-note">包含附加費用及隧道費</p>
         </div>
       </header>
 
       <section class="layout">
-        <section class="panel">
+        <form class="panel" id="fare-form">
           <div class="panel-header">
-            <h2 data-i18n="searchTitle">搜尋站點</h2>
-            <button type="button" id="clear" class="ghost-btn" data-i18n="clear">清除</button>
+            <h2>行程設定</h2>
+            <button type="button" id="reset" class="ghost-btn">重設</button>
           </div>
 
           <div class="field-grid">
             <label class="field">
-              <span data-i18n="apiLabel">API Key（可選，但建議）</span>
-              <input id="api-key" type="text" placeholder="填入 TfL app_key" data-i18n-placeholder="apiPlaceholder" />
-              <small data-i18n="apiHint">只會儲存在你瀏覽器內。</small>
+              <span>距離（公里）</span>
+              <input id="distance" type="number" inputmode="decimal" min="0" step="0.1" value="0" />
+              <small>首 2 公里已包含在起錶價</small>
             </label>
-            <div class="field">
-              <span data-i18n="apiTestLabel">測試 API Key</span>
-              <button class="ghost-btn" id="test-key" data-i18n="apiTestButton">測試</button>
-              <small id="api-test-result" class="status"></small>
+
+            <label class="field">
+              <span>等候時間（分鐘）</span>
+              <input id="waiting" type="number" inputmode="decimal" min="0" step="1" value="0" />
+              <small>每分鐘或其部分計算</small>
+            </label>
+
+            <label class="field">
+              <span>乘客人數</span>
+              <input id="passengers" type="number" inputmode="numeric" min="1" step="1" value="1" />
+              <small>用於平均分攤車資</small>
+            </label>
+          </div>
+
+          <div class="field">
+            <span>選擇的士類別</span>
+            <div class="pill-group" role="radiogroup">
+              <label class="pill">
+                <input type="radio" name="taxi-type" value="urban" checked />
+                <span>市區</span>
+              </label>
+              <label class="pill">
+                <input type="radio" name="taxi-type" value="nt" />
+                <span>新界</span>
+              </label>
+              <label class="pill">
+                <input type="radio" name="taxi-type" value="lantau" />
+                <span>大嶼山</span>
+              </label>
             </div>
           </div>
 
           <div class="field-grid">
             <label class="field">
-              <span data-i18n="routeLabel">路線名稱</span>
-              <input id="route-query" type="text" placeholder="例如 Victoria 或 38" data-i18n-placeholder="routePlaceholder" />
-              <small data-i18n="routeHint">先搜路線，再揀站。</small>
-              <div class="suggestions" id="route-suggestions"></div>
+              <span>行李件數</span>
+              <input id="luggage" type="number" inputmode="numeric" min="0" step="1" value="0" />
+              <small>每件 HK$6（輕便行李除外）</small>
             </label>
+
             <label class="field">
-              <span data-i18n="stopLabel">站名（可直接搜尋）</span>
-              <input id="stop-query" type="text" placeholder="例如 Waterloo" data-i18n-placeholder="stopPlaceholder" />
-              <small data-i18n="stopHint">唔揀路線都可以直接查站。</small>
-              <div class="suggestions" id="stop-suggestions"></div>
+              <span>動物／雀鳥</span>
+              <input id="animals" type="number" inputmode="numeric" min="0" step="1" value="0" />
+              <small>每隻 HK$5</small>
+            </label>
+
+            <label class="field toggle">
+              <span>電召預約服務</span>
+              <input id="booking" type="checkbox" />
+              <small>每程 HK$5</small>
             </label>
           </div>
 
-          <div class="actions">
-            <button class="primary-btn" id="route-search" data-i18n="routeSearch">搜尋路線</button>
-            <button class="primary-btn" id="search" data-i18n="stopSearch">搜尋站名</button>
-            <div class="quick">
-              <span data-i18n="quickLabel">快速站名：</span>
-              <button class="chip" data-query="Waterloo">Waterloo</button>
-              <button class="chip" data-query="Victoria">Victoria</button>
-              <button class="chip" data-query="Oxford Circus">Oxford Circus</button>
+          <div class="field-grid">
+            <label class="field">
+              <span>折扣（%）</span>
+              <input id="discount" type="number" inputmode="decimal" min="0" step="1" value="0" />
+              <small>例：輸入 10 代表 10% 折扣</small>
+            </label>
+          </div>
+
+          <div class="section-title">
+            <h3>隧道 / 收費道路</h3>
+            <p>選擇實際使用的隧道，可自行調整回程費。</p>
+          </div>
+
+          <div class="tunnel-grid">
+            <div class="tunnel-card">
+              <div>
+                <h4>海底隧道</h4>
+                <p>隧道費 $25</p>
+              </div>
+              <div class="tunnel-actions">
+                <label class="switch">
+                  <input type="checkbox" class="tunnel-toggle" data-fee="25" />
+                  <span>使用</span>
+                </label>
+                <label class="switch">
+                  <input type="checkbox" class="return-toggle" data-return="25" />
+                  <span>回程費</span>
+                </label>
+              </div>
+            </div>
+            <div class="tunnel-card">
+              <div>
+                <h4>東區海底隧道</h4>
+                <p>隧道費 $25</p>
+              </div>
+              <div class="tunnel-actions">
+                <label class="switch">
+                  <input type="checkbox" class="tunnel-toggle" data-fee="25" />
+                  <span>使用</span>
+                </label>
+                <label class="switch">
+                  <input type="checkbox" class="return-toggle" data-return="25" />
+                  <span>回程費</span>
+                </label>
+              </div>
+            </div>
+            <div class="tunnel-card">
+              <div>
+                <h4>西區海底隧道</h4>
+                <p>隧道費 $25</p>
+              </div>
+              <div class="tunnel-actions">
+                <label class="switch">
+                  <input type="checkbox" class="tunnel-toggle" data-fee="25" />
+                  <span>使用</span>
+                </label>
+                <label class="switch">
+                  <input type="checkbox" class="return-toggle" data-return="25" />
+                  <span>回程費</span>
+                </label>
+              </div>
             </div>
           </div>
 
-          <div class="status" id="status"></div>
-
-          <h3 class="section-title" data-i18n="routeResults">路線結果</h3>
-          <div class="list" id="route-list"></div>
-
-          <h3 class="section-title" data-i18n="stopResults">站點列表（會顯示月台 / 方向 / 終點提示）</h3>
-          <div class="list" id="stop-list"></div>
-        </section>
+          <div class="field-grid">
+            <label class="field">
+              <span>大欖隧道</span>
+              <input id="lantau-tunnel" type="number" inputmode="decimal" min="0" step="1" value="0" />
+              <small>司機所付的隧道費</small>
+            </label>
+            <label class="field">
+              <span>其他收費道路 / 區</span>
+              <input id="other-toll" type="number" inputmode="decimal" min="0" step="1" value="0" />
+              <small>輸入實際收費</small>
+            </label>
+          </div>
+        </form>
 
         <aside class="panel summary">
-          <div class="panel-header">
-            <h2 data-i18n="arrivalsTitle">到站時間</h2>
-            <button type="button" id="refresh" class="ghost-btn" data-i18n="refresh">刷新</button>
+          <h2>車資摘要</h2>
+
+          <div class="summary-grid">
+            <div class="summary-row">
+              <span>起錶價</span>
+              <strong id="base-fare">$0</strong>
+            </div>
+            <div class="summary-row">
+              <span>距離收費</span>
+              <strong id="distance-fare">$0</strong>
+            </div>
+            <div class="summary-row">
+              <span>等候收費</span>
+              <strong id="waiting-fare">$0</strong>
+            </div>
+            <div class="summary-row">
+              <span>附加費（行李 / 動物 / 電召）</span>
+              <strong id="extras-fare">$0</strong>
+            </div>
+            <div class="summary-row">
+              <span>隧道 / 收費道路</span>
+              <strong id="toll-fare">$0</strong>
+            </div>
+            <div class="summary-row">
+              <span>折扣</span>
+              <strong id="discount-fare">$0</strong>
+            </div>
           </div>
-          <div class="selected" id="selected-stop" data-i18n="noStopSelected">尚未選擇站點</div>
-          <div class="arrivals" id="arrival-list"></div>
+
+          <div class="total">
+            <p>總車資</p>
+            <h3 id="total">$0</h3>
+          </div>
+
+          <div class="split">
+            <p>平均每人</p>
+            <h4 id="per-person">$0</h4>
+          </div>
+
+          <div class="note">
+            <p>回程費僅在「非過海的士站上車」及「目的地在海港另一方」時收取。</p>
+          </div>
         </aside>
       </section>
 
-      <section class="panel tips">
-        <h2 data-i18n="tipsTitle">使用提示</h2>
-        <ul>
-          <li data-i18n="tip1">先搜尋路線（例如 38 或 Victoria），再揀站會更精準。</li>
-          <li data-i18n="tip2">如果無 API key，仍然可以嘗試查詢，但有機會被限制。</li>
-          <li data-i18n="tip3">到站時間以分鐘顯示，資料來自 TfL 實時預測。</li>
-          <li data-i18n="tip4">可加到手機主畫面當作 App 使用。</li>
-        </ul>
+      <section class="panel rates">
+        <h2>收費表（參考）</h2>
+        <div class="rate-grid">
+          <div class="rate-card">
+            <h3>市區的士</h3>
+            <ul>
+              <li>首 2 公里：HK$29</li>
+              <li>其後每 200 米 / 每分鐘：HK$2.1（至 $102.5）</li>
+              <li>其後每 200 米 / 每分鐘：HK$1.4</li>
+            </ul>
+          </div>
+          <div class="rate-card">
+            <h3>新界的士</h3>
+            <ul>
+              <li>首 2 公里：HK$25.5</li>
+              <li>其後每 200 米 / 每分鐘：HK$1.9（至 $82.5）</li>
+              <li>其後每 200 米 / 每分鐘：HK$1.4</li>
+            </ul>
+          </div>
+          <div class="rate-card">
+            <h3>大嶼山的士</h3>
+            <ul>
+              <li>首 2 公里：HK$24</li>
+              <li>其後每 200 米 / 每分鐘：HK$1.9（至 $195）</li>
+              <li>其後每 200 米 / 每分鐘：HK$1.6</li>
+            </ul>
+          </div>
+        </div>
       </section>
     </main>
 

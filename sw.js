@@ -1,4 +1,4 @@
-const CACHE_NAME = "tfl-arrivals-v1";
+const CACHE_NAME = "hk-taxi-calculator-v1";
 const ASSETS = [
   ".",
   "index.html",
