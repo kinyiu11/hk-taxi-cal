@@ -1,0 +1,9 @@
+{
+  "name": "London TfL 到站時間",
+  "short_name": "TfL Arrivals",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#0b1a2b",
+  "orientation": "portrait"
+}

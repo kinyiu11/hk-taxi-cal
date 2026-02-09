@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="zh-HK">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>London TfL 到站時間</title>
+    <meta name="theme-color" content="#0b1a2b" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <div class="topbar">
+        <button type="button" class="ghost-btn" id="lang-toggle">English</button>
+      </div>
+      <header class="hero">
+        <div class="hero-text">
+          <p class="eyebrow" data-i18n="eyebrow">London TfL</p>
+          <h1 data-i18n="title">到站時間查詢</h1>
+          <p class="subtitle" data-i18n="subtitle">輸入站名，快速查看下一班車到站時間。</p>
+        </div>
+        <div class="hero-card">
+          <p class="hero-label" data-i18n="heroLabel">已選站點</p>
+          <p class="hero-value" id="hero-stop">未選擇</p>
+          <p class="hero-note" data-i18n="heroNote">只限倫敦 TfL</p>
+        </div>
+      </header>
+
+      <section class="layout">
+        <section class="panel">
+          <div class="panel-header">
+            <h2 data-i18n="searchTitle">搜尋站點</h2>
+            <button type="button" id="clear" class="ghost-btn" data-i18n="clear">清除</button>
+          </div>
+
+          <div class="field-grid">
+            <label class="field">
+              <span data-i18n="apiLabel">API Key（可選，但建議）</span>
+              <input id="api-key" type="text" placeholder="填入 TfL app_key" data-i18n-placeholder="apiPlaceholder" />
+              <small data-i18n="apiHint">只會儲存在你瀏覽器內。</small>
+            </label>
+            <div class="field">
+              <span data-i18n="apiTestLabel">測試 API Key</span>
+              <button class="ghost-btn" id="test-key" data-i18n="apiTestButton">測試</button>
+              <small id="api-test-result" class="status"></small>
+            </div>
+          </div>
+
+          <div class="field-grid">
+            <label class="field">
+              <span data-i18n="routeLabel">路線名稱</span>
+              <input id="route-query" type="text" placeholder="例如 Victoria 或 38" data-i18n-placeholder="routePlaceholder" />
+              <small data-i18n="routeHint">先搜路線，再揀站。</small>
+              <div class="suggestions" id="route-suggestions"></div>
+            </label>
+            <label class="field">
+              <span data-i18n="stopLabel">站名（可直接搜尋）</span>
+              <input id="stop-query" type="text" placeholder="例如 Waterloo" data-i18n-placeholder="stopPlaceholder" />
+              <small data-i18n="stopHint">唔揀路線都可以直接查站。</small>
+              <div class="suggestions" id="stop-suggestions"></div>
+            </label>
+          </div>
+
+          <div class="actions">
+            <button class="primary-btn" id="route-search" data-i18n="routeSearch">搜尋路線</button>
+            <button class="primary-btn" id="search" data-i18n="stopSearch">搜尋站名</button>
+            <div class="quick">
+              <span data-i18n="quickLabel">快速站名：</span>
+              <button class="chip" data-query="Waterloo">Waterloo</button>
+              <button class="chip" data-query="Victoria">Victoria</button>
+              <button class="chip" data-query="Oxford Circus">Oxford Circus</button>
+            </div>
+          </div>
+
+          <div class="status" id="status"></div>
+
+          <h3 class="section-title" data-i18n="routeResults">路線結果</h3>
+          <div class="list" id="route-list"></div>
+
+          <h3 class="section-title" data-i18n="stopResults">站點列表（會顯示月台 / 方向 / 終點提示）</h3>
+          <div class="list" id="stop-list"></div>
+        </section>
+
+        <aside class="panel summary">
+          <div class="panel-header">
+            <h2 data-i18n="arrivalsTitle">到站時間</h2>
+            <button type="button" id="refresh" class="ghost-btn" data-i18n="refresh">刷新</button>
+          </div>
+          <div class="selected" id="selected-stop" data-i18n="noStopSelected">尚未選擇站點</div>
+          <div class="arrivals" id="arrival-list"></div>
+        </aside>
+      </section>
+
+      <section class="panel tips">
+        <h2 data-i18n="tipsTitle">使用提示</h2>
+        <ul>
+          <li data-i18n="tip1">先搜尋路線（例如 38 或 Victoria），再揀站會更精準。</li>
+          <li data-i18n="tip2">如果無 API key，仍然可以嘗試查詢，但有機會被限制。</li>
+          <li data-i18n="tip3">到站時間以分鐘顯示，資料來自 TfL 實時預測。</li>
+          <li data-i18n="tip4">可加到手機主畫面當作 App 使用。</li>
+        </ul>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
