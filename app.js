@@ -1,4 +1,4 @@
-const APP_VERSION = "v2";
+const APP_VERSION = "版本 2026.02.09";
 
 const TAXI_RATES = {
   urban: {
