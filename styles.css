@@ -312,6 +312,21 @@ h2 {
   background: linear-gradient(135deg, #f8fbfd, #ffffff);
 }
 
+.version-badge {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  background: rgba(11, 43, 60, 0.92);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  z-index: 10;
+  box-shadow: 0 10px 22px rgba(7, 17, 24, 0.2);
+}
+
 .rate-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));

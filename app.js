@@ -1,3 +1,5 @@
+const APP_VERSION = "v2";
+
 const TAXI_RATES = {
   urban: {
     name: "市區",
@@ -154,6 +156,11 @@ if (resetButton) {
 
 bindInputs();
 updateTotals();
+
+const versionBadge = document.getElementById("app-version");
+if (versionBadge) {
+  versionBadge.textContent = APP_VERSION;
+}
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
